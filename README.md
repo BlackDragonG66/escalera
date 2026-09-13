@@ -1,4 +1,4 @@
-# 🪜 Escalera — Cadena de Palabras (Word Chain)
+# 🟦🟨🟥 Next Tap Puzzle — **Fas**t **T**ap **P**lay
 
 Juego multijugador en tiempo real inspirado en Kahoot, donde cada palabra nueva
 debe comenzar con la última letra de la palabra anterior. Ideal para jugar en
@@ -50,7 +50,7 @@ tiempo real con QR para unirse fácilmente desde el celular.
 ## 🗂️ Estructura del proyecto
 
 ```
-escalera/
+next-tap-puzzle/
 ├── server/
 │   ├── index.js              # Servidor Express + Socket.IO (toda la lógica en tiempo real)
 │   ├── game/
@@ -107,7 +107,7 @@ Hostinger permite crear aplicaciones **Node.js** desde el panel (hPanel →
 4. Usa un gestor de procesos como `pm2` para mantenerlo corriendo:
    ```bash
    npm install -g pm2
-   pm2 start server/index.js --name escalera
+   pm2 start server/index.js --name next-tap-puzzle
    pm2 save
    ```
 5. Configura Nginx como proxy inverso hacia el puerto de la app, habilitando

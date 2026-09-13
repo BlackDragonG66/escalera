@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Escalera · Cadena de Palabras</title>
+<title>Next Tap Puzzle · Fast Tap Play</title>
 <link rel="stylesheet" href="/css/style.css" />
 <link rel="icon" href="data:,">
 </head>
@@ -20,9 +20,13 @@
     <!-- PANTALLA: MENU PRINCIPAL -->
     <section id="screen-home" class="screen active">
       <div class="brand">
-        <div class="logo">🪜</div>
-        <h1>Escalera</h1>
-        <p class="tagline">El juego de la cadena de palabras</p>
+        <div class="logo-blocks" aria-hidden="true">
+          <span class="block b-f">F</span>
+          <span class="block b-t">T</span>
+          <span class="block b-p">P</span>
+        </div>
+        <h1>Next Tap Puzzle</h1>
+        <p class="tagline"><strong>Fas</strong>t <strong>T</strong>ap <strong>P</strong>lay — la cadena de palabras en tiempo real</p>
       </div>
       <div class="menu-grid">
         <button class="btn-card" id="btn-practice">
@@ -65,6 +69,7 @@
           </select>
         </label>
         <label>Categorías (elige una o varias) <span id="practice-categories-list" class="chips"></span></label>
+        <p class="hint">Si no eliges ninguna, se usarán todas las categorías del idioma.</p>
         <label>Palabra inicial (opcional)
           <input type="text" id="practice-start-word" placeholder="Aleatoria si se deja vacío" />
         </label>
@@ -100,6 +105,7 @@
           </select>
         </label>
         <label>Categorías (elige una o varias) <span id="create-categories-list" class="chips"></span></label>
+        <p class="hint">Si no eliges ninguna, se usarán todas las categorías del idioma.</p>
         <label>Palabra inicial (opcional)
           <input type="text" id="create-start-word" placeholder="Aleatoria si se deja vacío" />
         </label>
@@ -195,6 +201,7 @@
     <section id="screen-game" class="screen">
       <div class="game-top">
         <div class="game-round">Ronda <span id="game-round-num">1</span></div>
+        <div id="game-mode-badges" class="mode-badges"></div>
         <div class="game-timer"><span id="game-timer-num">--</span>s</div>
       </div>
       <div class="chain-box">

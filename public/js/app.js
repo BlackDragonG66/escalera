@@ -1,4 +1,4 @@
-// Escalera - cliente
+// Next Tap Puzzle - cliente
 (() => {
   const socket = io();
 
@@ -470,6 +470,7 @@
     const lastLetter = stripAccents(room.currentWord || '').slice(-1).toUpperCase();
     $('#game-next-letter').textContent = lastLetter || '?';
 
+    renderModeBadges(room.settings);
     renderChainHistory(room);
 
     const currentPlayer = room.players.find((p) => p.id === room.currentPlayerId);
@@ -515,6 +516,22 @@
   }
 
   // Cadena completa de palabras jugadas: lista expandible que va creciendo.
+  function renderModeBadges(settings) {
+    const box = $('#game-mode-badges');
+    box.innerHTML = '';
+    const badges = [];
+    if (settings.assistMode) badges.push('🧩 Asistido');
+    if (settings.learnMode) badges.push('🎓 Aprendizaje');
+    if (settings.hostReviewsAnswers) badges.push('✅ Todo vale');
+    if (settings.teamsEnabled) badges.push('👥 Equipos');
+    badges.forEach((text) => {
+      const span = document.createElement('span');
+      span.className = 'mode-badge';
+      span.textContent = text;
+      box.appendChild(span);
+    });
+  }
+
   function renderChainHistory(room) {
     const history = room.chainHistory || [];
     $('#chain-count').textContent = history.length;

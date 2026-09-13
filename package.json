@@ -1,7 +1,7 @@
 {
-  "name": "escalera",
+  "name": "next-tap-puzzle",
   "version": "1.0.0",
-  "description": "Escalera - Juego de cadena de palabras (Word Chain) en tiempo real, estilo Kahoot: practica solo, PvP 1v1, salas por equipos con QR.",
+  "description": "Next Tap Puzzle (Fast Tap Play) - Juego de cadena de palabras (Word Chain) en tiempo real, estilo Kahoot: practica solo, PvP 1v1, salas por equipos con QR.",
   "main": "server/index.js",
   "type": "commonjs",
   "scripts": {

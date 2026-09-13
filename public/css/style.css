@@ -81,6 +81,38 @@ body {
   margin: 30px 0 20px;
 }
 .brand .logo { font-size: 64px; }
+
+/* Logo tipo "cuadros unidos" (puzzle blocks) para Next Tap Puzzle / Fast Tap Play */
+.logo-blocks {
+  display: inline-flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.logo-blocks .block {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: white;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.3), inset 0 -4px 0 rgba(0,0,0,0.15);
+  transform: rotate(0deg);
+  animation: blockPop 0.5s ease backwards;
+}
+.logo-blocks .block:nth-child(1) { animation-delay: 0s; }
+.logo-blocks .block:nth-child(2) { animation-delay: 0.1s; }
+.logo-blocks .block:nth-child(3) { animation-delay: 0.2s; }
+.logo-blocks .b-f { background: var(--accent2); transform: rotate(-6deg); }
+.logo-blocks .b-t { background: var(--accent4); color: #402800; }
+.logo-blocks .b-p { background: var(--accent3); transform: rotate(6deg); }
+
+@keyframes blockPop {
+  from { opacity: 0; transform: scale(0.4) rotate(0deg); }
+  to   { opacity: 1; }
+}
 .brand h1 {
   font-size: 3rem;
   margin: 4px 0;
@@ -295,6 +327,14 @@ h2 { color: white; text-shadow: 0 2px 8px rgba(0,0,0,0.25); }
   margin-bottom: 10px;
 }
 .game-timer { background: var(--accent2); padding: 4px 14px; border-radius: 20px; }
+.mode-badges { display: flex; gap: 6px; }
+.mode-badge {
+  background: rgba(255,255,255,0.2);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
 
 .chain-box {
   background: var(--card-bg);

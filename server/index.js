@@ -266,5 +266,5 @@ io.on('connection', (socket) => {
 setInterval(() => manager.cleanup(), 1000 * 60 * 30);
 
 server.listen(PORT, () => {
-  console.log(`Escalera corriendo en http://localhost:${PORT}`);
+  console.log(`Next Tap Puzzle corriendo en http://localhost:${PORT}`);
 });

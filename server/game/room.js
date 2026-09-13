@@ -1,4 +1,4 @@
-// Lógica principal de una Sala (Room) de Escalera.
+// Lógica principal de una Sala (Room) de Next Tap Puzzle.
 const { nanoid } = require('nanoid');
 const dictionaries = require('./dictionaries');
 
