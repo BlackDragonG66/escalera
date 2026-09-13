@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Escalera · Cadena de Palabras</title>
+<link rel="stylesheet" href="/css/style.css" />
+<link rel="icon" href="data:,">
+</head>
+<body>
+  <div id="app">
+
+    <!-- PANTALLA: MENU PRINCIPAL -->
+    <section id="screen-home" class="screen active">
+      <div class="brand">
+        <div class="logo">🪜</div>
+        <h1>Escalera</h1>
+        <p class="tagline">El juego de la cadena de palabras</p>
+      </div>
+      <div class="menu-grid">
+        <button class="btn-card" id="btn-practice">
+          <span class="icon">🧠</span>
+          <span class="title">Practicar solo</span>
+          <span class="desc">Entrena tu vocabulario contra el reloj</span>
+        </button>
+        <button class="btn-card" id="btn-pvp">
+          <span class="icon">⚔️</span>
+          <span class="title">PvP 1 vs 1</span>
+          <span class="desc">Crea un duelo y comparte el código</span>
+        </button>
+        <button class="btn-card" id="btn-create-room">
+          <span class="icon">📶</span>
+          <span class="title">Crear sala</span>
+          <span class="desc">Genera un QR para que todos se unan</span>
+        </button>
+        <button class="btn-card" id="btn-join-room">
+          <span class="icon">🔑</span>
+          <span class="title">Unirse a sala</span>
+          <span class="desc">Ingresa el código de la sala</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- PANTALLA: PRACTICA SOLO -->
+    <section id="screen-practice" class="screen">
+      <button class="btn-back" data-back>← Volver</button>
+      <h2>🧠 Practicar solo</h2>
+      <div class="config-form">
+        <label>Idioma
+          <select id="practice-lang">
+            <option value="en">Inglés</option>
+            <option value="es">Español</option>
+          </select>
+        </label>
+        <label>Categorías (elige una o varias) <span id="practice-categories-list" class="chips"></span></label>
+        <label>Palabra inicial (opcional)
+          <input type="text" id="practice-start-word" placeholder="Aleatoria si se deja vacío" />
+        </label>
+        <label>Tiempo por turno (segundos)
+          <input type="number" id="practice-time" value="20" min="5" max="120" />
+        </label>
+        <button class="btn-primary" id="practice-start">Comenzar</button>
+      </div>
+    </section>
+
+    <!-- PANTALLA: CREAR SALA (host) -->
+    <section id="screen-create" class="screen">
+      <button class="btn-back" data-back>← Volver</button>
+      <h2 id="create-title">📶 Crear sala</h2>
+      <div class="config-form">
+        <label>Tu nombre
+          <input type="text" id="create-host-name" placeholder="Host" />
+        </label>
+        <label>Elige tu avatar <span id="create-avatar-picker" class="avatar-picker"></span></label>
+        <label>Idioma
+          <select id="create-lang">
+            <option value="en">Inglés</option>
+            <option value="es">Español</option>
+          </select>
+        </label>
+        <label>Categorías (elige una o varias) <span id="create-categories-list" class="chips"></span></label>
+        <label>Palabra inicial (opcional)
+          <input type="text" id="create-start-word" placeholder="Aleatoria si se deja vacío" />
+        </label>
+        <label>Tiempo por turno (segundos)
+          <input type="number" id="create-time" value="20" min="5" max="120" />
+        </label>
+        <label class="switch-row">
+          <input type="checkbox" id="create-no-repeat" checked />
+          No repetir palabras usadas
+        </label>
+        <label class="switch-row">
+          <input type="checkbox" id="create-disqualify" checked />
+          Descalificación por fallo
+        </label>
+        <label class="switch-row">
+          <input type="checkbox" id="create-host-reviews" />
+          Todo vale (el host revisa cada respuesta)
+        </label>
+        <label class="switch-row">
+          <input type="checkbox" id="create-teams" />
+          Jugar por equipos
+        </label>
+        <label class="switch-row">
+          <input type="checkbox" id="create-host-plays" />
+          El host también juega (por defecto solo modera)
+        </label>
+        <button class="btn-primary" id="create-submit">Crear sala</button>
+      </div>
+    </section>
+
+    <!-- PANTALLA: UNIRSE A SALA -->
+    <section id="screen-join" class="screen">
+      <button class="btn-back" data-back>← Volver</button>
+      <h2>🔑 Unirse a sala</h2>
+      <div class="config-form">
+        <label>Código de sala
+          <input type="text" id="join-code" maxlength="6" placeholder="Ej: AB12C" style="text-transform:uppercase" />
+        </label>
+        <label>Tu nombre
+          <input type="text" id="join-name" placeholder="Tu nombre" />
+        </label>
+        <label>Elige tu avatar <span id="join-avatar-picker" class="avatar-picker"></span></label>
+        <button class="btn-primary" id="join-submit">Unirme</button>
+      </div>
+    </section>
+
+    <!-- PANTALLA: LOBBY (sala de espera con QR) -->
+    <section id="screen-lobby" class="screen">
+      <h2>Sala <span id="lobby-code" class="room-code"></span></h2>
+      <div class="lobby-grid">
+        <div class="lobby-qr-box">
+          <img id="lobby-qr" alt="Código QR de la sala" />
+          <p class="hint">Escanea para unirte desde tu celular</p>
+        </div>
+        <div class="lobby-players">
+          <h3>Jugadores</h3>
+          <ul id="lobby-players-list"></ul>
+          <div id="lobby-teams-box" class="hidden">
+            <h3>Equipos</h3>
+            <div id="lobby-teams-list"></div>
+            <button class="btn-secondary" id="lobby-create-team">+ Crear equipo</button>
+          </div>
+        </div>
+      </div>
+      <button class="btn-primary" id="lobby-start-btn">▶️ Iniciar juego</button>
+      <p id="lobby-wait-msg" class="hint hidden">Esperando a que el host inicie el juego...</p>
+    </section>
+
+    <!-- PANTALLA: JUEGO -->
+    <section id="screen-game" class="screen">
+      <div class="game-top">
+        <div class="game-round">Ronda <span id="game-round-num">1</span></div>
+        <div class="game-timer"><span id="game-timer-num">--</span>s</div>
+      </div>
+      <div class="chain-box">
+        <div class="chain-label">Palabra actual</div>
+        <div class="chain-word" id="game-current-word">—</div>
+        <div class="chain-hint">Siguiente palabra debe comenzar con "<span id="game-next-letter">?</span>"</div>
+      </div>
+      <div class="turn-indicator" id="game-turn-indicator">Turno de: —</div>
+      <div class="answer-row">
+        <input type="text" id="game-word-input" placeholder="Escribe tu palabra..." autocomplete="off" />
+        <button class="btn-primary" id="game-submit-btn">Enviar</button>
+      </div>
+      <div id="game-feedback" class="feedback"></div>
+      <div class="scoreboard">
+        <h3>Puntuación</h3>
+        <ul id="game-scoreboard-list"></ul>
+      </div>
+      <div id="host-review-box" class="host-review hidden">
+        <p>Revisar respuesta de <b id="review-player-name"></b>: "<span id="review-word"></span>"</p>
+        <button class="btn-primary" id="review-approve">✅ Válida</button>
+        <button class="btn-danger" id="review-reject">❌ Inválida</button>
+      </div>
+    </section>
+
+    <!-- PANTALLA: FIN DE JUEGO -->
+    <section id="screen-end" class="screen">
+      <h2>🏁 Fin del juego</h2>
+      <div id="end-results"></div>
+      <button class="btn-primary" id="end-next-round-btn">Siguiente ronda</button>
+      <button class="btn-secondary" data-back>Volver al menú</button>
+    </section>
+
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
