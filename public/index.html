@@ -8,6 +8,13 @@
 <link rel="icon" href="data:,">
 </head>
 <body>
+  <div class="lava-bg">
+    <div class="lava-blob"></div>
+    <div class="lava-blob"></div>
+    <div class="lava-blob"></div>
+    <div class="lava-blob"></div>
+    <div class="lava-blob"></div>
+  </div>
   <div id="app">
 
     <!-- PANTALLA: MENU PRINCIPAL -->
@@ -38,6 +45,11 @@
           <span class="title">Unirse a sala</span>
           <span class="desc">Ingresa el código de la sala</span>
         </button>
+        <button class="btn-card" id="btn-dictionary">
+          <span class="icon">📖</span>
+          <span class="title">Ver diccionario</span>
+          <span class="desc">Explora todas las palabras por categoría</span>
+        </button>
       </div>
     </section>
 
@@ -59,6 +71,15 @@
         <label>Tiempo por turno (segundos)
           <input type="number" id="practice-time" value="20" min="5" max="120" />
         </label>
+        <label class="switch-row">
+          <input type="checkbox" id="practice-assist" />
+          🧩 Modo asistido (elige entre opciones, no escribas)
+        </label>
+        <label class="switch-row">
+          <input type="checkbox" id="practice-learn" />
+          🎓 Modo aprendizaje (si fallas, te doy pistas para continuar; incluye pasado/participio en inglés)
+        </label>
+        <button class="btn-secondary" id="practice-view-dict">📖 Ver palabras de estas categorías</button>
         <button class="btn-primary" id="practice-start">Comenzar</button>
       </div>
     </section>
@@ -105,6 +126,11 @@
           <input type="checkbox" id="create-host-plays" />
           El host también juega (por defecto solo modera)
         </label>
+        <label class="switch-row">
+          <input type="checkbox" id="create-assist" />
+          🧩 Modo asistido (todos eligen entre opciones, no escriben)
+        </label>
+        <button class="btn-secondary" id="create-view-dict">📖 Ver palabras de estas categorías</button>
         <button class="btn-primary" id="create-submit">Crear sala</button>
       </div>
     </section>
@@ -122,6 +148,24 @@
         </label>
         <label>Elige tu avatar <span id="join-avatar-picker" class="avatar-picker"></span></label>
         <button class="btn-primary" id="join-submit">Unirme</button>
+      </div>
+    </section>
+
+    <!-- PANTALLA: VISOR DE DICCIONARIO -->
+    <section id="screen-dictionary" class="screen">
+      <button class="btn-back" data-back>← Volver</button>
+      <h2>📖 Diccionario</h2>
+      <div class="config-form">
+        <label>Idioma
+          <select id="dict-lang">
+            <option value="en">Inglés</option>
+            <option value="es">Español</option>
+          </select>
+        </label>
+        <label>Categorías <span id="dict-categories-list" class="chips"></span></label>
+        <input type="text" id="dict-filter" placeholder="🔍 Buscar palabra..." />
+        <p class="hint" id="dict-count"></p>
+        <div id="dict-word-list" class="word-grid"></div>
       </div>
     </section>
 
@@ -158,12 +202,30 @@
         <div class="chain-word" id="game-current-word">—</div>
         <div class="chain-hint">Siguiente palabra debe comenzar con "<span id="game-next-letter">?</span>"</div>
       </div>
+      <div class="chain-history-box">
+        <button class="chain-toggle" id="chain-toggle-btn">📜 Ver cadena completa (<span id="chain-count">0</span>) ▾</button>
+        <div id="chain-history-list" class="chain-history-list hidden"></div>
+      </div>
       <div class="turn-indicator" id="game-turn-indicator">Turno de: —</div>
-      <div class="answer-row">
+
+      <!-- Modo normal: escribir la palabra -->
+      <div class="answer-row" id="answer-row-write">
         <input type="text" id="game-word-input" placeholder="Escribe tu palabra..." autocomplete="off" />
         <button class="btn-primary" id="game-submit-btn">Enviar</button>
       </div>
+
+      <!-- Modo asistido: elegir entre opciones -->
+      <div id="answer-row-assist" class="assist-options hidden"></div>
+
       <div id="game-feedback" class="feedback"></div>
+
+      <!-- Panel de pistas del modo aprendizaje -->
+      <div id="learn-hints-box" class="learn-hints hidden">
+        <h4>💡 Pistas para continuar</h4>
+        <div id="learn-hints-words" class="chips"></div>
+        <div id="learn-hints-verb" class="verb-hint hidden"></div>
+      </div>
+
       <div class="scoreboard">
         <h3>Puntuación</h3>
         <ul id="game-scoreboard-list"></ul>

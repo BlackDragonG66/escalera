@@ -52,6 +52,8 @@ class Room {
       teamsEnabled: !!options.teamsEnabled,
       maxRounds: options.maxRounds || 0, // 0 = ilimitado
       hostPlays: !!options.hostPlays, // por defecto el host NO juega, solo modera
+      assistMode: !!options.assistMode, // modo asistido: elegir de opciones en vez de escribir
+      learnMode: !!options.learnMode, // modo aprendizaje: da pistas al fallar (solo practica, solo inglés)
     };
 
     this.players = new Map(); // id -> Player
@@ -68,6 +70,7 @@ class Room {
     this.turnDeadline = null;
     this.pendingReview = null; // { playerId, word, resolve }
     this.turnTimer = null;
+    this.chainHistory = []; // lista creciente de palabras jugadas, para mostrar la cadena completa
   }
 
   addPlayer(name, socketId, isHost = false, avatar = null) {
@@ -131,6 +134,67 @@ class Room {
     this.currentWordRaw = start;
     this.currentWord = start;
     this.usedWords.add(dictionaries.stripAccents(start));
+    this.chainHistory = [{ word: start, playerId: null }];
+  }
+
+  // Modo asistido: genera opciones (múltiple opción) para el jugador actual, en vez de escribir.
+  // Incluye 1 palabra válida (si existe en el diccionario) + distractores que no encajan en la cadena.
+  generateOptions(count = 4) {
+    const dict = [...this.dictionary];
+    if (!dict.length) return [];
+    const expectedLetter = this.currentWord ? dictionaries.lastLetter(this.currentWord) : null;
+
+    const valid = dict.filter((w) => {
+      const stripped = dictionaries.stripAccents(w);
+      const startsOk = !expectedLetter || dictionaries.firstLetter(w) === expectedLetter;
+      const notUsed = !this.settings.noRepeatAcrossRounds || !this.usedWords.has(stripped);
+      return startsOk && notUsed;
+    });
+
+    const invalid = dict.filter((w) => {
+      const startsOk = !expectedLetter || dictionaries.firstLetter(w) === expectedLetter;
+      return !startsOk;
+    });
+
+    const options = new Set();
+    if (valid.length) options.add(valid[Math.floor(Math.random() * valid.length)]);
+    // Rellena con distractores (palabras que no empiezan con la letra correcta).
+    const shuffledInvalid = [...invalid].sort(() => Math.random() - 0.5);
+    for (const w of shuffledInvalid) {
+      if (options.size >= count) break;
+      options.add(w);
+    }
+    // Si aún faltan opciones (diccionario pequeño), rellena con lo que haya.
+    const shuffledAll = [...dict].sort(() => Math.random() - 0.5);
+    for (const w of shuffledAll) {
+      if (options.size >= count) break;
+      options.add(w);
+    }
+    return [...options].sort(() => Math.random() - 0.5);
+  }
+
+  // Modo aprendizaje: al fallar, entrega sugerencias de palabras válidas para continuar
+  // (y, en inglés con verbos, la forma pasado/participio relacionada).
+  getHintsOnFail() {
+    const dict = [...this.dictionary];
+    const expectedLetter = this.currentWord ? dictionaries.lastLetter(this.currentWord) : null;
+    const candidates = dict.filter((w) => {
+      const stripped = dictionaries.stripAccents(w);
+      const startsOk = !expectedLetter || dictionaries.firstLetter(w) === expectedLetter;
+      const notUsed = !this.settings.noRepeatAcrossRounds || !this.usedWords.has(stripped);
+      return startsOk && notUsed;
+    });
+    const shuffled = candidates.sort(() => Math.random() - 0.5).slice(0, 5);
+
+    const hints = { words: shuffled, verbForms: null };
+
+    // Si la categoría incluye verbos en inglés (pasado/participio), añade la forma relacionada
+    // de la palabra actual como pista extra de aprendizaje.
+    if (this.settings.language === 'en') {
+      const entry = dictionaries.findIrregularEntry(this.currentWord);
+      if (entry) hints.verbForms = entry;
+    }
+    return hints;
   }
 
   currentPlayerId() {
@@ -180,6 +244,7 @@ class Room {
     this.currentWord = norm;
     this.currentWordRaw = word;
     this.usedWords.add(stripped);
+    this.chainHistory.push({ word: norm, playerId });
 
     const player = this.players.get(playerId);
     if (player) {
@@ -231,6 +296,7 @@ class Room {
       settings: this.settings,
       currentWord: this.currentWordRaw,
       currentPlayerId: this.currentPlayerId(),
+      chainHistory: this.chainHistory,
       players: [...this.players.values()].map((p) => ({
         id: p.id,
         name: p.name,

@@ -31,6 +31,14 @@ app.get('/api/avatars', (req, res) => {
   res.json({ avatars: AVATARS });
 });
 
+// Visualizar el contenido completo del diccionario (una o varias categorías).
+app.get('/api/dictionary/:lang', (req, res) => {
+  const lang = req.params.lang === 'es' ? 'es' : 'en';
+  const categories = req.query.categories ? String(req.query.categories).split(',').filter(Boolean) : [];
+  const words = dictionaries.getWordsArray(lang, categories);
+  res.json({ language: lang, categories, words, total: words.length });
+});
+
 // Genera un QR apuntando a la URL de "unirse" con el código de sala precargado.
 app.get('/api/qr/:code', async (req, res) => {
   const code = String(req.params.code || '').toUpperCase();
@@ -63,8 +71,9 @@ function scheduleTurnTimer(room) {
   room.turnTimer = setTimeout(() => {
     const playerId = room.currentPlayerId();
     if (!playerId) return;
+    const hints = room.settings.learnMode ? room.getHintsOnFail() : null;
     room.failTurn(playerId);
-    io.to(room.code).emit('game:timeout', { playerId });
+    io.to(room.code).emit('game:timeout', { playerId, hints });
     if (room.state === 'finished') {
       io.to(room.code).emit('game:finished', room.toPublicState());
     } else {
@@ -156,6 +165,14 @@ io.on('connection', (socket) => {
     roomUpdate(room);
   });
 
+  // Modo asistido: entrega opciones (multiple choice) para el jugador en turno, en vez de escribir.
+  socket.on('game:getOptions', (cb) => {
+    const room = manager.getRoom(currentRoomCode);
+    if (!room || room.state !== 'playing') return cb && cb({ ok: false });
+    const options = room.generateOptions(4);
+    cb && cb({ ok: true, options });
+  });
+
   socket.on('game:submitWord', ({ word }, cb) => {
     const room = manager.getRoom(currentRoomCode);
     if (!room || room.state !== 'playing') return cb && cb({ ok: false, error: 'not_playing' });
@@ -180,7 +197,8 @@ io.on('connection', (socket) => {
 
     if (!validation.ok) {
       room.failTurn(playerId);
-      cb && cb({ ok: false, reason: validation.reason, expectedLetter: validation.expectedLetter });
+      const hints = room.settings.learnMode ? room.getHintsOnFail() : null;
+      cb && cb({ ok: false, reason: validation.reason, expectedLetter: validation.expectedLetter, hints });
       io.to(room.code).emit('game:wordRejected', { playerId, word, reason: validation.reason });
       if (room.state === 'finished') {
         io.to(room.code).emit('game:finished', room.toPublicState());

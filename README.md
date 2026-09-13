@@ -24,7 +24,22 @@ tiempo real con QR para unirse fácilmente desde el celular.
   falla o se le acaba el tiempo.
 - **📚 Diccionarios por categoría** (varias seleccionables a la vez), en
   **inglés y español**: Verbos, Animales, Ciudades, Colores, Comida, Países,
-  Deportes.
+  Deportes, y en inglés además **Verbos en pasado** y **Verbos en
+  participio** (para el modo aprendizaje).
+- **🧩 Modo asistido**: en vez de escribir, se muestran opciones de palabras
+  para elegir con un clic (disponible en práctica, PvP y salas).
+- **🎓 Modo aprendizaje** (solo en Practicar solo): si fallas o se acaba el
+  tiempo, se muestran pistas de palabras válidas para continuar. Si el
+  idioma es inglés, además muestra la forma pasado/participio del verbo
+  irregular relacionado con la palabra actual.
+- **📖 Visor de diccionario**: explora todas las palabras de una o varias
+  categorías, con buscador, tanto desde el menú principal como desde las
+  pantallas de configuración.
+- **📜 Cadena de palabras expandible**: además de la palabra actual, puedes
+  desplegar el historial completo de la partida para ver cómo fue creciendo
+  la cadena y quién dijo cada palabra.
+- **🌋 Fondo animado** tipo lámpara de lava, con colores que cambian
+  suavemente con el tiempo.
 - **🎨 Avatares**: cada jugador elige un avatar de una colección variada
   (cortesía de [alohe/avatars](https://github.com/alohe/avatars), servidos vía
   CDN jsDelivr, sin necesidad de alojar imágenes en el proyecto).

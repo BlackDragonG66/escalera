@@ -112,6 +112,9 @@
   $('#practice-lang').addEventListener('change', (e) => {
     loadCategories(e.target.value, '#practice-categories-list', state.selectedCategoriesPractice);
   });
+  $('#practice-view-dict').addEventListener('click', () => {
+    openDictionary($('#practice-lang').value, [...state.selectedCategoriesPractice]);
+  });
 
   $('#btn-pvp').addEventListener('click', async () => {
     state.mode = 'pvp';
@@ -133,6 +136,9 @@
   $('#create-lang').addEventListener('change', (e) => {
     loadCategories(e.target.value, '#create-categories-list', state.selectedCategoriesCreate);
   });
+  $('#create-view-dict').addEventListener('click', () => {
+    openDictionary($('#create-lang').value, [...state.selectedCategoriesCreate]);
+  });
 
   $('#btn-join-room').addEventListener('click', () => {
     showScreen('screen-join');
@@ -150,6 +156,90 @@
     }
   })();
 
+  // ---------- VISOR DE DICCIONARIO ----------
+  $('#btn-dictionary').addEventListener('click', () => openDictionary('en', []));
+  $('#dict-lang').addEventListener('change', (e) => {
+    loadDictCategoryChips(e.target.value);
+  });
+  $('#dict-filter').addEventListener('input', () => renderDictWords());
+
+  let dictWordsCache = [];
+
+  async function loadDictCategoryChips(lang) {
+    const res = await fetch(`/api/categories/${lang}`);
+    const data = await res.json();
+    const el = $('#dict-categories-list');
+    el.innerHTML = '';
+    const allChip = document.createElement('span');
+    allChip.className = 'chip selected';
+    allChip.textContent = 'Todas';
+    allChip.dataset.cat = '__all__';
+    el.appendChild(allChip);
+    data.categories.forEach((cat) => {
+      const chip = document.createElement('span');
+      chip.className = 'chip';
+      chip.textContent = categoryLabel(cat);
+      chip.dataset.cat = cat;
+      el.appendChild(chip);
+    });
+    [...el.children].forEach((chip) => {
+      chip.addEventListener('click', () => {
+        if (chip.dataset.cat === '__all__') {
+          [...el.children].forEach((c) => c.classList.remove('selected'));
+          chip.classList.add('selected');
+        } else {
+          el.querySelector('[data-cat="__all__"]').classList.remove('selected');
+          chip.classList.toggle('selected');
+          const anySelected = [...el.children].some((c) => c.classList.contains('selected'));
+          if (!anySelected) el.querySelector('[data-cat="__all__"]').classList.add('selected');
+        }
+        fetchDictWords();
+      });
+    });
+  }
+
+  async function fetchDictWords() {
+    const lang = $('#dict-lang').value;
+    const selected = [...$('#dict-categories-list').children]
+      .filter((c) => c.classList.contains('selected') && c.dataset.cat !== '__all__')
+      .map((c) => c.dataset.cat);
+    const qs = selected.length ? `?categories=${selected.join(',')}` : '';
+    const res = await fetch(`/api/dictionary/${lang}${qs}`);
+    const data = await res.json();
+    dictWordsCache = data.words;
+    renderDictWords();
+  }
+
+  function renderDictWords() {
+    const filter = $('#dict-filter').value.trim().toLowerCase();
+    const words = filter ? dictWordsCache.filter((w) => w.includes(filter)) : dictWordsCache;
+    $('#dict-count').textContent = `${words.length} palabra(s)`;
+    const box = $('#dict-word-list');
+    box.innerHTML = '';
+    const frag = document.createDocumentFragment();
+    words.forEach((w) => {
+      const span = document.createElement('span');
+      span.className = 'word-chip';
+      span.textContent = w;
+      frag.appendChild(span);
+    });
+    box.appendChild(frag);
+  }
+
+  async function openDictionary(lang, categories) {
+    $('#dict-lang').value = lang;
+    await loadDictCategoryChips(lang);
+    if (categories.length) {
+      [...$('#dict-categories-list').children].forEach((c) => {
+        c.classList.toggle('selected', categories.includes(c.dataset.cat));
+      });
+      $('#dict-categories-list').querySelector('[data-cat="__all__"]').classList.remove('selected');
+    }
+    $('#dict-filter').value = '';
+    await fetchDictWords();
+    showScreen('screen-dictionary');
+  }
+
   // ---------- PRACTICAR SOLO (usa el mismo motor de sala del servidor, un solo jugador) ----------
   async function fetchDictionaryWords() {
     // no-op placeholder removed; la práctica usa room:create directamente (ver listener abajo)
@@ -164,6 +254,8 @@
     const categories = [...state.selectedCategoriesPractice];
     const startWord = $('#practice-start-word').value.trim();
     const turnTimeLimitSec = parseInt($('#practice-time').value, 10) || 20;
+    const assistMode = $('#practice-assist').checked;
+    const learnMode = $('#practice-learn').checked;
 
     socket.emit(
       'room:create',
@@ -179,6 +271,8 @@
         teamsEnabled: false,
         hostPlays: true,
         hostName: 'Yo',
+        assistMode,
+        learnMode,
       },
       (resp) => {
         if (!resp || !resp.ok) {
@@ -207,6 +301,7 @@
     const hostReviewsAnswers = $('#create-host-reviews').checked;
     const teamsEnabled = state.mode === 'party' && $('#create-teams').checked;
     const hostPlays = $('#create-host-plays').checked;
+    const assistMode = $('#create-assist').checked;
 
     socket.emit(
       'room:create',
@@ -223,6 +318,7 @@
         hostPlays,
         hostName,
         avatar: state.selectedAvatarCreate,
+        assistMode,
       },
       (resp) => {
         if (!resp || !resp.ok) {
@@ -366,11 +462,15 @@
   }
 
   // ---------- JUEGO ----------
+  let lastOptionsForPlayer = null; // evita pedir opciones repetidas para el mismo turno
+
   function renderGameState(room) {
     $('#game-round-num').textContent = room.round;
     $('#game-current-word').textContent = room.currentWord || '—';
     const lastLetter = stripAccents(room.currentWord || '').slice(-1).toUpperCase();
     $('#game-next-letter').textContent = lastLetter || '?';
+
+    renderChainHistory(room);
 
     const currentPlayer = room.players.find((p) => p.id === room.currentPlayerId);
     const isMyTurn = room.currentPlayerId === state.playerId;
@@ -378,8 +478,19 @@
       ? `Turno de: ${currentPlayer.name}${isMyTurn ? ' (¡Tú!)' : ''}`
       : 'Esperando...';
 
+    const assistMode = room.settings.assistMode;
+    $('#answer-row-write').classList.toggle('hidden', assistMode);
+    $('#answer-row-assist').classList.toggle('hidden', !assistMode);
+
     $('#game-word-input').disabled = !isMyTurn;
     $('#game-submit-btn').disabled = !isMyTurn;
+
+    if (assistMode && isMyTurn && lastOptionsForPlayer !== room.currentWord) {
+      lastOptionsForPlayer = room.currentWord;
+      loadAssistOptions();
+    } else if (!isMyTurn) {
+      lastOptionsForPlayer = null;
+    }
 
     // Scoreboard en vivo, ordenado por puntaje. Muestra equipos si están activados.
     const list = $('#game-scoreboard-list');
@@ -403,15 +514,66 @@
     $('#host-review-box').classList.add('hidden');
   }
 
-  $('#game-submit-btn').addEventListener('click', submitWord);
+  // Cadena completa de palabras jugadas: lista expandible que va creciendo.
+  function renderChainHistory(room) {
+    const history = room.chainHistory || [];
+    $('#chain-count').textContent = history.length;
+    const box = $('#chain-history-list');
+    box.innerHTML = '';
+    history.forEach((entry, idx) => {
+      if (idx > 0) {
+        const arrow = document.createElement('span');
+        arrow.className = 'arrow';
+        arrow.textContent = '→';
+        box.appendChild(arrow);
+      }
+      const player = room.players.find((p) => p.id === entry.playerId);
+      const span = document.createElement('span');
+      span.className = 'link';
+      span.innerHTML = `${escapeHtml(entry.word)}${player ? `<span class="n">${escapeHtml(player.name)}</span>` : ''}`;
+      box.appendChild(span);
+    });
+    // Auto-scroll al final para ver la palabra más reciente.
+    box.scrollTop = box.scrollHeight;
+  }
+
+  $('#chain-toggle-btn').addEventListener('click', () => {
+    $('#chain-history-list').classList.toggle('hidden');
+  });
+
+  // ---------- MODO ASISTIDO: opciones en vez de escribir ----------
+  function loadAssistOptions() {
+    socket.emit('game:getOptions', (resp) => {
+      if (!resp || !resp.ok) return;
+      renderAssistOptions(resp.options);
+    });
+  }
+
+  function renderAssistOptions(options) {
+    const box = $('#answer-row-assist');
+    box.innerHTML = '';
+    options.forEach((word) => {
+      const btn = document.createElement('button');
+      btn.className = 'assist-option-btn';
+      btn.textContent = word;
+      btn.addEventListener('click', () => {
+        [...box.children].forEach((b) => (b.disabled = true));
+        submitWord(word);
+      });
+      box.appendChild(btn);
+    });
+  }
+
+  $('#game-submit-btn').addEventListener('click', () => submitWord());
   $('#game-word-input').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') submitWord();
   });
 
-  function submitWord() {
+  function submitWord(assistedWord) {
     const input = $('#game-word-input');
-    const word = input.value.trim();
+    const word = assistedWord || input.value.trim();
     if (!word) return;
+    $('#learn-hints-box').classList.add('hidden');
     socket.emit('game:submitWord', { word }, (resp) => {
       const fb = $('#game-feedback');
       if (!resp) return;
@@ -434,8 +596,33 @@
         };
         fb.textContent = `Incorrecto ❌ ${reasons[resp.reason] || ''}`;
         fb.className = 'feedback err';
+        if (resp.hints) showLearnHints(resp.hints);
       }
     });
+  }
+
+  // ---------- MODO APRENDIZAJE: pistas al fallar ----------
+  function showLearnHints(hints) {
+    const box = $('#learn-hints-box');
+    const wordsBox = $('#learn-hints-words');
+    const verbBox = $('#learn-hints-verb');
+    wordsBox.innerHTML = '';
+    (hints.words || []).forEach((w) => {
+      const chip = document.createElement('span');
+      chip.className = 'chip';
+      chip.textContent = w;
+      wordsBox.appendChild(chip);
+    });
+    if (hints.verbForms) {
+      const { base, past, participle } = hints.verbForms;
+      verbBox.innerHTML = `Verbo relacionado: <b>${escapeHtml(base)}</b> → pasado: <span class="vf">${escapeHtml(
+        past
+      )}</span> · participio: <span class="vf">${escapeHtml(participle)}</span>`;
+      verbBox.classList.remove('hidden');
+    } else {
+      verbBox.classList.add('hidden');
+    }
+    box.classList.toggle('hidden', !(hints.words || []).length && !hints.verbForms);
   }
 
   socket.on('game:reviewRequest', ({ playerId, playerName, word }) => {
@@ -468,11 +655,12 @@
       fb.className = 'feedback err';
     }
   });
-  socket.on('game:timeout', ({ playerId }) => {
+  socket.on('game:timeout', ({ playerId, hints }) => {
     const fb = $('#game-feedback');
     const p = state.room?.players.find((pl) => pl.id === playerId);
     fb.textContent = `⏰ ¡Tiempo agotado para ${p ? p.name : 'jugador'}!`;
     fb.className = 'feedback err';
+    if (hints && playerId === state.playerId) showLearnHints(hints);
   });
 
   socket.on('game:started', (room) => {

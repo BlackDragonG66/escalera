@@ -42,6 +42,32 @@ function getWordSet(lang, categories) {
   return set;
 }
 
+// Devuelve las palabras como array ordenado, para poder "visualizar el diccionario" en el cliente.
+function getWordsArray(lang, categories) {
+  return [...getWordSet(lang, categories)].sort();
+}
+
+// Verbos irregulares en inglés (base/past/participle), usados en el modo "Aprender" asistido.
+let irregularVerbsCache = null;
+function loadIrregularVerbs() {
+  if (irregularVerbsCache) return irregularVerbsCache;
+  const file = path.join(__dirname, '..', 'data', 'irregular_verbs.json');
+  try {
+    irregularVerbsCache = JSON.parse(fs.readFileSync(file, 'utf8'));
+  } catch (e) {
+    irregularVerbsCache = [];
+  }
+  return irregularVerbsCache;
+}
+
+// Dada una palabra (pasado o participio), busca su entrada completa para mostrar pistas.
+function findIrregularEntry(word) {
+  const norm = normalizeWord(word);
+  return loadIrregularVerbs().find(
+    (e) => e.base === norm || e.past === norm || e.participle === norm
+  );
+}
+
 // Normaliza: minúsculas, sin espacios extra, sin acentos para comparar letras de cadena,
 // pero conserva ñ como letra válida en español.
 function normalizeWord(word) {
@@ -78,6 +104,9 @@ module.exports = {
   loadLanguage,
   listCategories,
   getWordSet,
+  getWordsArray,
+  loadIrregularVerbs,
+  findIrregularEntry,
   normalizeWord,
   stripAccents,
   lastLetter,
