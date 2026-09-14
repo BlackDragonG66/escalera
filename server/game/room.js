@@ -137,8 +137,41 @@ class Room {
     this.chainHistory = [{ word: start, playerId: null }];
   }
 
+  // Genera variantes "casi correctas" de una palabra: letras trocadas de posición
+  // o una letra de más, para usar como distractores realistas (ej: night -> nigth).
+  static makeTypoVariants(word, howMany = 3) {
+    const variants = new Set();
+    const letters = 'abcdefghijklmnopqrstuvwxyz';
+    let attempts = 0;
+    while (variants.size < howMany && attempts < 30) {
+      attempts++;
+      const type = Math.floor(Math.random() * 3);
+      let variant = word;
+      if (type === 0 && word.length >= 3) {
+        // Intercambia dos letras adyacentes (ej: night -> nigth).
+        const i = 1 + Math.floor(Math.random() * (word.length - 2));
+        const chars = word.split('');
+        [chars[i], chars[i + 1]] = [chars[i + 1], chars[i]];
+        variant = chars.join('');
+      } else if (type === 1) {
+        // Inserta una letra de más en una posición aleatoria (no al inicio, para conservar la letra requerida).
+        const i = 1 + Math.floor(Math.random() * word.length);
+        const extra = letters[Math.floor(Math.random() * letters.length)];
+        variant = word.slice(0, i) + extra + word.slice(i);
+      } else if (word.length >= 3) {
+        // Cambia una letra interna por otra (mal ubicada/mal escrita).
+        const i = 1 + Math.floor(Math.random() * (word.length - 2));
+        const wrong = letters[Math.floor(Math.random() * letters.length)];
+        variant = word.slice(0, i) + wrong + word.slice(i + 1);
+      }
+      if (variant !== word && !variants.has(variant)) variants.add(variant);
+    }
+    return [...variants];
+  }
+
   // Modo asistido: genera opciones (múltiple opción) para el jugador actual, en vez de escribir.
-  // Incluye 1 palabra válida (si existe en el diccionario) + distractores que no encajan en la cadena.
+  // Incluye 1 palabra válida (real) + distractores que son variantes "casi correctas" con error
+  // (letra de más o mal ubicada), para que parezcan opciones plausibles y no obviamente distintas.
   generateOptions(count = 4) {
     const dict = [...this.dictionary];
     if (!dict.length) return [];
@@ -151,26 +184,32 @@ class Room {
       return startsOk && notUsed;
     });
 
-    const invalid = dict.filter((w) => {
-      const startsOk = !expectedLetter || dictionaries.firstLetter(w) === expectedLetter;
-      return !startsOk;
-    });
+    if (!valid.length) return [];
+    const correctWord = valid[Math.floor(Math.random() * valid.length)];
+    const options = new Set([correctWord]);
 
-    const options = new Set();
-    if (valid.length) options.add(valid[Math.floor(Math.random() * valid.length)]);
-    // Rellena con distractores (palabras que no empiezan con la letra correcta).
-    const shuffledInvalid = [...invalid].sort(() => Math.random() - 0.5);
-    for (const w of shuffledInvalid) {
+    // Distractores tipo "typo" derivados de la palabra correcta (2-3 opciones erróneas plausibles).
+    const dictSet = new Set(dict.map((w) => w.toLowerCase()));
+    const typoVariants = Room.makeTypoVariants(correctWord, count + 2)
+      .filter((v) => !dictSet.has(v.toLowerCase()));
+    for (const v of typoVariants) {
       if (options.size >= count) break;
-      options.add(w);
+      options.add(v);
     }
-    // Si aún faltan opciones (diccionario pequeño), rellena con lo que haya.
+
+    // Si aún faltan opciones, rellena con otras palabras válidas distintas (variedad) o cualquiera del diccionario.
+    const shuffledValid = [...valid].filter((w) => w !== correctWord).sort(() => Math.random() - 0.5);
+    for (const w of shuffledValid) {
+      if (options.size >= count) break;
+      const variant = Room.makeTypoVariants(w, 1)[0];
+      if (variant && !dictSet.has(variant.toLowerCase())) options.add(variant);
+    }
     const shuffledAll = [...dict].sort(() => Math.random() - 0.5);
     for (const w of shuffledAll) {
       if (options.size >= count) break;
       options.add(w);
     }
-    return [...options].sort(() => Math.random() - 0.5);
+    return [...options].slice(0, count).sort(() => Math.random() - 0.5);
   }
 
   // Modo aprendizaje: al fallar, entrega sugerencias de palabras válidas para continuar
