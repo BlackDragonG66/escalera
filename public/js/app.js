@@ -212,7 +212,9 @@
 
   function renderDictWords() {
     const filter = $('#dict-filter').value.trim().toLowerCase();
-    const words = filter ? dictWordsCache.filter((w) => w.includes(filter)) : dictWordsCache;
+    const words = filter
+      ? dictWordsCache.filter((w) => w.word.includes(filter) || (w.translation || '').toLowerCase().includes(filter))
+      : dictWordsCache;
     $('#dict-count').textContent = `${words.length} palabra(s)`;
     const box = $('#dict-word-list');
     box.innerHTML = '';
@@ -220,7 +222,9 @@
     words.forEach((w) => {
       const span = document.createElement('span');
       span.className = 'word-chip';
-      span.textContent = w;
+      span.innerHTML = w.translation
+        ? `${escapeHtml(w.word)}<span class="tr">${escapeHtml(w.translation)}</span>`
+        : escapeHtml(w.word);
       frag.appendChild(span);
     });
     box.appendChild(frag);
@@ -467,6 +471,11 @@
   function renderGameState(room) {
     $('#game-round-num').textContent = room.round;
     $('#game-current-word').textContent = room.currentWord || '—';
+    const translationEl = $('#game-current-translation');
+    if (translationEl) {
+      translationEl.textContent = room.currentWordTranslation ? `= ${room.currentWordTranslation}` : '';
+      translationEl.classList.toggle('hidden', !room.currentWordTranslation);
+    }
     const lastLetter = stripAccents(room.currentWord || '').slice(-1).toUpperCase();
     $('#game-next-letter').textContent = lastLetter || '?';
 
@@ -547,7 +556,10 @@
       const player = room.players.find((p) => p.id === entry.playerId);
       const span = document.createElement('span');
       span.className = 'link';
-      span.innerHTML = `${escapeHtml(entry.word)}${player ? `<span class="n">${escapeHtml(player.name)}</span>` : ''}`;
+      const translationHtml = entry.translation
+        ? `<span class="tr">${escapeHtml(entry.translation)}</span>`
+        : '';
+      span.innerHTML = `${escapeHtml(entry.word)}${translationHtml}${player ? `<span class="n">${escapeHtml(player.name)}</span>` : ''}`;
       box.appendChild(span);
     });
     // Auto-scroll al final para ver la palabra más reciente.

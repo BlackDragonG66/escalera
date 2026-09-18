@@ -100,6 +100,34 @@ function isValidChain(prevWord, nextWord) {
   return lastLetter(prevWord) === firstLetter(nextWord);
 }
 
+// Traducciones EN<->ES por categoría, para reforzar el aprendizaje bilingüe.
+let translationsCache = null;
+function loadTranslations() {
+  if (translationsCache) return translationsCache;
+  const file = path.join(__dirname, '..', 'data', 'translations.json');
+  try {
+    translationsCache = JSON.parse(fs.readFileSync(file, 'utf8'));
+  } catch (e) {
+    translationsCache = {};
+  }
+  return translationsCache;
+}
+
+// Busca la traducción de una palabra (a partir de cualquier categoría del diccionario de traducciones).
+// Si la palabra es una forma de pasado/participio de un verbo irregular en inglés, usa esa entrada.
+function getTranslation(word, lang) {
+  const norm = normalizeWord(word);
+  const translations = loadTranslations();
+  for (const cat of Object.keys(translations)) {
+    if (translations[cat][norm]) return translations[cat][norm];
+  }
+  if (lang === 'en') {
+    const entry = findIrregularEntry(norm);
+    if (entry && entry.es) return entry.es;
+  }
+  return null;
+}
+
 module.exports = {
   loadLanguage,
   listCategories,
@@ -107,6 +135,8 @@ module.exports = {
   getWordsArray,
   loadIrregularVerbs,
   findIrregularEntry,
+  loadTranslations,
+  getTranslation,
   normalizeWord,
   stripAccents,
   lastLetter,

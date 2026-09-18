@@ -134,7 +134,7 @@ class Room {
     this.currentWordRaw = start;
     this.currentWord = start;
     this.usedWords.add(dictionaries.stripAccents(start));
-    this.chainHistory = [{ word: start, playerId: null }];
+    this.chainHistory = [{ word: start, playerId: null, translation: dictionaries.getTranslation(start, this.settings.language) }];
   }
 
   // Genera variantes "casi correctas" de una palabra: letras trocadas de posición
@@ -283,7 +283,7 @@ class Room {
     this.currentWord = norm;
     this.currentWordRaw = word;
     this.usedWords.add(stripped);
-    this.chainHistory.push({ word: norm, playerId });
+    this.chainHistory.push({ word: norm, playerId, translation: dictionaries.getTranslation(norm, this.settings.language) });
 
     const player = this.players.get(playerId);
     if (player) {
@@ -334,6 +334,9 @@ class Room {
       round: this.round,
       settings: this.settings,
       currentWord: this.currentWordRaw,
+      currentWordTranslation: this.currentWordRaw
+        ? dictionaries.getTranslation(this.currentWordRaw, this.settings.language)
+        : null,
       currentPlayerId: this.currentPlayerId(),
       chainHistory: this.chainHistory,
       players: [...this.players.values()].map((p) => ({

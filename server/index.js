@@ -31,12 +31,13 @@ app.get('/api/avatars', (req, res) => {
   res.json({ avatars: AVATARS });
 });
 
-// Visualizar el contenido completo del diccionario (una o varias categorías).
+// Visualizar el contenido completo del diccionario (una o varias categorías), con traducción.
 app.get('/api/dictionary/:lang', (req, res) => {
   const lang = req.params.lang === 'es' ? 'es' : 'en';
   const categories = req.query.categories ? String(req.query.categories).split(',').filter(Boolean) : [];
   const words = dictionaries.getWordsArray(lang, categories);
-  res.json({ language: lang, categories, words, total: words.length });
+  const entries = words.map((w) => ({ word: w, translation: dictionaries.getTranslation(w, lang) }));
+  res.json({ language: lang, categories, words: entries, total: entries.length });
 });
 
 // Genera un QR apuntando a la URL de "unirse" con el código de sala precargado.
