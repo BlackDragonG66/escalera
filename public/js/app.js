@@ -93,6 +93,11 @@
       food: 'Comida', countries: 'Países', sports: 'Deportes',
       verbos: 'Verbos', animales: 'Animales', ciudades: 'Ciudades', colores: 'Colores',
       comida: 'Comida', paises: 'Países', deportes: 'Deportes',
+      videogames: '🎮 Videojuegos', videojuegos: '🎮 Videojuegos',
+      professions: '👷 Profesiones', profesiones: '👷 Profesiones',
+      emotions: '😊 Emociones', emociones: '😊 Emociones',
+      transportation: '🚗 Transporte', transporte: '🚗 Transporte',
+      technology: '💻 Tecnología', tecnologia: '💻 Tecnología',
     };
     return labels[cat] || cat;
   }
@@ -470,23 +475,35 @@
 
   function renderGameState(room) {
     $('#game-round-num').textContent = room.round;
-    $('#game-current-word').textContent = room.currentWord || '—';
-    const translationEl = $('#game-current-translation');
-    if (translationEl) {
-      translationEl.textContent = room.currentWordTranslation ? `= ${room.currentWordTranslation}` : '';
-      translationEl.classList.toggle('hidden', !room.currentWordTranslation);
+
+    const isPvp = room.settings.mode === 'pvp';
+    $('#chain-box-shared').classList.toggle('hidden', isPvp);
+    $('#pvp-lanes').classList.toggle('hidden', !isPvp);
+    $('#game-turn-indicator').classList.toggle('hidden', isPvp);
+
+    if (isPvp) {
+      renderPvpLanes(room);
+    } else {
+      $('#game-current-word').textContent = room.currentWord || '—';
+      const translationEl = $('#game-current-translation');
+      if (translationEl) {
+        translationEl.textContent = room.currentWordTranslation ? `= ${room.currentWordTranslation}` : '';
+        translationEl.classList.toggle('hidden', !room.currentWordTranslation);
+      }
+      const lastLetter = stripAccents(room.currentWord || '').slice(-1).toUpperCase();
+      $('#game-next-letter').textContent = lastLetter || '?';
     }
-    const lastLetter = stripAccents(room.currentWord || '').slice(-1).toUpperCase();
-    $('#game-next-letter').textContent = lastLetter || '?';
 
     renderModeBadges(room.settings);
     renderChainHistory(room);
 
     const currentPlayer = room.players.find((p) => p.id === room.currentPlayerId);
-    const isMyTurn = room.currentPlayerId === state.playerId;
-    $('#game-turn-indicator').textContent = currentPlayer
-      ? `Turno de: ${currentPlayer.name}${isMyTurn ? ' (¡Tú!)' : ''}`
-      : 'Esperando...';
+    const isMyTurn = isPvp ? true : room.currentPlayerId === state.playerId;
+    if (!isPvp) {
+      $('#game-turn-indicator').textContent = currentPlayer
+        ? `Turno de: ${currentPlayer.name}${isMyTurn ? ' (¡Tú!)' : ''}`
+        : 'Esperando...';
+    }
 
     const assistMode = room.settings.assistMode;
     $('#answer-row-write').classList.toggle('hidden', assistMode);
@@ -495,8 +512,12 @@
     $('#game-word-input').disabled = !isMyTurn;
     $('#game-submit-btn').disabled = !isMyTurn;
 
-    if (assistMode && isMyTurn && lastOptionsForPlayer !== room.currentWord) {
-      lastOptionsForPlayer = room.currentWord;
+    // En PvP, la palabra "actual" para pedir opciones es la de la propia cadena del jugador.
+    const myWordForOptions = isPvp
+      ? room.playerChains?.[state.playerId]?.currentWord
+      : room.currentWord;
+    if (assistMode && isMyTurn && lastOptionsForPlayer !== myWordForOptions) {
+      lastOptionsForPlayer = myWordForOptions;
       loadAssistOptions();
     } else if (!isMyTurn) {
       lastOptionsForPlayer = null;
@@ -522,6 +543,29 @@
 
     // Host revisa respuestas
     $('#host-review-box').classList.add('hidden');
+  }
+
+  // Carriles PvP: muestra la palabra actual y progreso de CADA jugador en paralelo,
+  // para que se vea claramente cómo van avanzando ambos al mismo tiempo.
+  function renderPvpLanes(room) {
+    const box = $('#pvp-lanes');
+    box.innerHTML = '';
+    room.players.forEach((p) => {
+      const chain = room.playerChains?.[p.id];
+      if (!chain) return;
+      const isMe = p.id === state.playerId;
+      const lane = document.createElement('div');
+      lane.className = 'pvp-lane' + (isMe ? ' me' : '');
+      const nextLetter = (chain.nextLetter || '?').toUpperCase();
+      lane.innerHTML = `
+        <div class="pvp-lane-name">${p.avatar ? `<img src="${p.avatar}" alt="" />` : ''}${escapeHtml(p.name)}${isMe ? ' (¡Tú!)' : ''}</div>
+        <div class="pvp-lane-word">${escapeHtml(chain.currentWord || '—')}</div>
+        <div class="pvp-lane-tr">${chain.currentWordTranslation ? '= ' + escapeHtml(chain.currentWordTranslation) : ''}</div>
+        <div class="pvp-lane-hint">Sigue con "<b>${nextLetter}</b>"</div>
+        <div class="pvp-lane-progress">✅ ${chain.wordsCompleted} palabras</div>
+      `;
+      box.appendChild(lane);
+    });
   }
 
   // Cadena completa de palabras jugadas: lista expandible que va creciendo.
@@ -613,7 +657,7 @@
         return;
       }
       if (resp.ok) {
-        fb.textContent = '¡Correcto! ✅';
+        fb.textContent = resp.points ? `¡Correcto! ✅ +${resp.points} pts` : '¡Correcto! ✅';
         fb.className = 'feedback ok';
         input.value = '';
       } else {

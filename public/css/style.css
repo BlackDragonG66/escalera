@@ -362,6 +362,43 @@ h2 { color: white; text-shadow: 0 2px 8px rgba(0,0,0,0.25); }
   margin-bottom: 6px;
 }
 
+/* PvP 1v1 simultáneo: dos carriles lado a lado mostrando el progreso de cada jugador. */
+.pvp-lanes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.pvp-lane {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 18px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  border: 3px solid transparent;
+}
+.pvp-lane.me { border-color: var(--accent2); }
+.pvp-lane-name {
+  font-weight: 800;
+  color: #4a3d63;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.pvp-lane-name img { width: 26px; height: 26px; border-radius: 50%; }
+.pvp-lane-word {
+  font-size: 1.9rem;
+  font-weight: 900;
+  color: var(--primary);
+  word-break: break-word;
+}
+.pvp-lane-tr { color: #7a5cff; font-style: italic; font-weight: 700; min-height: 1.2em; }
+.pvp-lane-hint { color: #4a3d63; font-weight: 600; margin: 6px 0; }
+.pvp-lane-hint b { color: var(--accent2); font-size: 1.15rem; }
+.pvp-lane-progress { color: #2ecc71; font-weight: 800; }
+
 .turn-indicator {
   text-align: center;
   color: white;

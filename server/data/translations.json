@@ -130,5 +130,111 @@
     "usar": "use", "viajar": "travel", "visitar": "visit", "zambullir": "dive", "andar": "walk",
     "regalar": "give (a gift)", "romper": "break", "salir": "go out", "tener": "have", "unir": "join",
     "abrazar": "hug", "besar": "kiss", "construir": "build", "descubrir": "discover", "ver": "see"
+  },
+  "videogames": {
+    "amnesia": "amnesia", "borderlands": "borderlands", "celeste": "celeste", "doom": "doom", "eldenring": "elden ring",
+    "fortnite": "fortnite", "gearswar": "gears of war", "halo": "halo", "inside": "inside", "journey": "journey",
+    "kirby": "kirby", "luigi": "luigi", "minecraft": "minecraft", "nier": "nier", "overwatch": "overwatch",
+    "portal": "portal", "quake": "quake", "rayman": "rayman", "sonic": "sonic", "tetris": "tetris",
+    "uncharted": "uncharted", "valorant": "valorant", "warcraft": "warcraft", "xenoblade": "xenoblade", "yakuza": "yakuza",
+    "zelda": "zelda", "fifa": "fifa", "mario": "mario", "pokemon": "pokemon", "roblox": "roblox",
+    "splatoon": "splatoon", "titanfall": "titanfall", "undertale": "undertale", "wordle": "wordle", "ori": "ori",
+    "myst": "myst", "crash": "crash", "diablo": "diablo", "ecco": "ecco", "nfs": "need for speed"
+  },
+  "professions": {
+    "actor": "actor", "baker": "panadero", "chef": "chef", "dentist": "dentista", "engineer": "ingeniero",
+    "farmer": "granjero", "guard": "guardia", "hairdresser": "peluquero", "inspector": "inspector", "journalist": "periodista",
+    "keeper": "guardián", "lawyer": "abogado", "mechanic": "mecánico", "nurse": "enfermera", "officer": "oficial",
+    "painter": "pintor", "queen": "reina", "reporter": "reportero", "surgeon": "cirujano", "teacher": "maestro",
+    "undertaker": "sepulturero", "vet": "veterinario", "waiter": "camarero", "xylographer": "xilógrafo", "yeoman": "escudero",
+    "zoologist": "zoólogo", "architect": "arquitecto", "butcher": "carnicero", "carpenter": "carpintero", "doctor": "doctor",
+    "electrician": "electricista", "firefighter": "bombero", "gardener": "jardinero", "hunter": "cazador", "illustrator": "ilustrador",
+    "judge": "juez", "kickboxer": "kickboxer", "librarian": "bibliotecario", "musician": "músico", "nanny": "niñera",
+    "operator": "operador", "plumber": "fontanero", "quarryman": "cantero", "runner": "corredor", "sailor": "marinero",
+    "tailor": "sastre", "umpire": "árbitro", "vendor": "vendedor", "welder": "soldador", "yogi": "yogui"
+  },
+  "profesiones": {
+    "actor": "actor", "abogado": "lawyer", "albañil": "bricklayer", "arquitecto": "architect", "bombero": "firefighter",
+    "bailarina": "dancer", "barbero": "barber", "camarero": "waiter", "carpintero": "carpenter", "chef": "chef",
+    "cirujano": "surgeon", "cocinero": "cook", "conductor": "driver", "costurera": "seamstress", "dentista": "dentist",
+    "doctor": "doctor", "electricista": "electrician", "enfermera": "nurse", "escritor": "writer", "fontanero": "plumber",
+    "granjero": "farmer", "guardia": "guard", "herrero": "blacksmith", "ingeniero": "engineer", "jardinero": "gardener",
+    "jinete": "jockey", "juez": "judge", "kinesiólogo": "kinesiologist", "locutor": "announcer", "maestro": "teacher",
+    "mecánico": "mechanic", "minero": "miner", "músico": "musician", "niñera": "nanny", "notario": "notary",
+    "operador": "operator", "panadero": "baker", "peluquero": "hairdresser", "piloto": "pilot", "pintor": "painter",
+    "policía": "police officer", "profesor": "teacher", "psicólogo": "psychologist", "reportero": "reporter", "sastre": "tailor",
+    "soldador": "welder", "traductor": "translator", "veterinario": "vet", "vendedor": "vendor", "zapatero": "shoemaker"
+  },
+  "emotions": {
+    "angry": "enojado", "bored": "aburrido", "calm": "calmado", "delighted": "encantado", "excited": "emocionado",
+    "furious": "furioso", "grateful": "agradecido", "happy": "feliz", "irritated": "irritado", "jealous": "celoso",
+    "kind": "amable", "lonely": "solitario", "moody": "malhumorado", "nervous": "nervioso", "optimistic": "optimista",
+    "proud": "orgulloso", "quiet": "callado", "relieved": "aliviado", "sad": "triste", "tense": "tenso",
+    "upset": "molesto", "vengeful": "vengativo", "worried": "preocupado", "xenial": "hospitalario", "yearning": "anhelante",
+    "zealous": "entusiasta", "anxious": "ansioso", "brave": "valiente", "confident": "confiado", "depressed": "deprimido",
+    "embarrassed": "avergonzado", "frightened": "asustado", "glad": "contento", "hopeful": "esperanzado", "impatient": "impaciente",
+    "joyful": "gozoso", "keen": "entusiasmado", "loving": "cariñoso", "miserable": "desdichado", "nostalgic": "nostálgico",
+    "overwhelmed": "abrumado", "peaceful": "pacífico", "quirky": "peculiar", "restless": "inquieto", "shy": "tímido",
+    "thrilled": "emocionadísimo", "uneasy": "incómodo", "vibrant": "vibrante", "wistful": "melancólico", "yielding": "dócil"
+  },
+  "emociones": {
+    "alegre": "cheerful", "ansioso": "anxious", "aburrido": "bored", "bravo": "brave", "calmado": "calm",
+    "celoso": "jealous", "confiado": "confident", "curioso": "curious", "deprimido": "depressed", "desesperado": "desperate",
+    "enojado": "angry", "emocionado": "excited", "envidioso": "envious", "feliz": "happy", "furioso": "furious",
+    "gozoso": "joyful", "harto": "fed up", "impaciente": "impatient", "inquieto": "restless", "irritado": "irritated",
+    "jovial": "jovial", "juguetón": "playful", "latoso": "annoying", "leal": "loyal", "melancólico": "melancholic",
+    "miedoso": "fearful", "nervioso": "nervous", "optimista": "optimistic", "orgulloso": "proud", "pesimista": "pessimistic",
+    "preocupado": "worried", "quieto": "quiet", "relajado": "relaxed", "resentido": "resentful", "sereno": "serene",
+    "sorprendido": "surprised", "tenso": "tense", "triste": "sad", "tímido": "shy", "valiente": "brave",
+    "vengativo": "vengeful", "abatido": "dejected", "asustado": "frightened", "cansado": "tired", "dichoso": "blissful",
+    "entusiasta": "enthusiastic", "exaltado": "elated", "fascinado": "fascinated", "glorioso": "glorious", "radiante": "radiant"
+  },
+  "transportation": {
+    "airplane": "avión", "bicycle": "bicicleta", "car": "auto", "dirigible": "dirigible", "elevator": "elevador",
+    "ferry": "ferry", "gondola": "góndola", "helicopter": "helicóptero", "icebreaker": "rompehielos", "jeep": "jeep",
+    "kayak": "kayak", "limousine": "limusina", "motorcycle": "moto", "navy": "buque", "ostrich": "avestruz",
+    "pickup": "camioneta", "quad": "cuatrimoto", "rickshaw": "rickshaw", "scooter": "patineta", "train": "tren",
+    "unicycle": "uniciclo", "van": "furgoneta", "wagon": "vagón", "xebec": "jabeque", "yacht": "yate",
+    "zeppelin": "zepelín", "ambulance": "ambulancia", "bus": "autobús", "canoe": "canoa", "dinghy": "bote",
+    "excavator": "excavadora", "forklift": "montacargas", "glider": "planeador", "hovercraft": "aerodeslizador", "inflatable": "inflable",
+    "jetski": "moto acuática", "kart": "kart", "lorry": "camión", "monorail": "monorriel", "omnibus": "ómnibus",
+    "plane": "avión", "quadcopter": "dron", "raft": "balsa", "submarine": "submarino", "tram": "tranvía",
+    "truck": "camión", "vehicle": "vehículo", "wheelbarrow": "carretilla", "yola": "yola", "zamboni": "zamboni"
+  },
+  "transporte": {
+    "auto": "car", "autobús": "bus", "avión": "airplane", "ambulancia": "ambulance", "barco": "ship",
+    "bicicleta": "bicycle", "bote": "dinghy", "buque": "navy", "camión": "truck", "camioneta": "pickup",
+    "canoa": "canoe", "carreta": "cart", "carro": "car", "carruaje": "carriage", "catamarán": "catamaran",
+    "coche": "car", "crucero": "cruise ship", "dirigible": "dirigible", "elevador": "elevator", "excavadora": "excavator",
+    "ferry": "ferry", "funicular": "funicular", "góndola": "gondola", "grúa": "crane", "helicóptero": "helicopter",
+    "hidroala": "hydrofoil", "jeep": "jeep", "kayak": "kayak", "lancha": "boat", "limusina": "limousine",
+    "moto": "motorcycle", "monorriel": "monorail", "nave": "ship", "ovni": "ufo", "patineta": "scooter",
+    "planeador": "glider", "quad": "quad", "remolque": "trailer", "rickshaw": "rickshaw", "submarino": "submarine",
+    "tranvía": "tram", "tren": "train", "triciclo": "tricycle", "teleférico": "cable car", "uniciclo": "unicycle",
+    "vagón": "wagon", "velero": "sailboat", "yate": "yacht", "zepelín": "zeppelin", "yola": "yola"
+  },
+  "technology": {
+    "antenna": "antena", "browser": "navegador", "cable": "cable", "database": "base de datos", "email": "correo",
+    "firewall": "cortafuegos", "gigabyte": "gigabyte", "hardware": "hardware", "internet": "internet", "joystick": "joystick",
+    "keyboard": "teclado", "laptop": "portátil", "modem": "módem", "network": "red", "operator": "operador",
+    "printer": "impresora", "qubit": "qubit", "router": "router", "server": "servidor", "tablet": "tableta",
+    "usb": "usb", "virus": "virus", "wifi": "wifi", "xerox": "xerox", "youtube": "youtube",
+    "zip": "zip", "algorithm": "algoritmo", "bluetooth": "bluetooth", "cloud": "nube", "desktop": "escritorio",
+    "ethernet": "ethernet", "file": "archivo", "gpu": "gpu", "hyperlink": "hipervínculo", "icon": "icono",
+    "java": "java", "kernel": "kernel", "link": "enlace", "microchip": "microchip", "node": "nodo",
+    "online": "en línea", "password": "contraseña", "query": "consulta", "robot": "robot", "software": "software",
+    "terminal": "terminal", "upload": "subir", "video": "video", "website": "sitio web", "zoom": "zoom"
+  },
+  "tecnologia": {
+    "antena": "antenna", "aplicación": "application", "archivo": "file", "base de datos": "database", "bluetooth": "bluetooth",
+    "cable": "cable", "celular": "cellphone", "computadora": "computer", "contraseña": "password", "dato": "data",
+    "disco": "disk", "electrónica": "electronics", "enlace": "link", "ethernet": "ethernet", "firewall": "firewall",
+    "gigabyte": "gigabyte", "hardware": "hardware", "icono": "icon", "internet": "internet", "joystick": "joystick",
+    "kernel": "kernel", "laptop": "laptop", "memoria": "memory", "módem": "modem", "navegador": "browser",
+    "nube": "cloud", "ordenador": "computer", "pantalla": "screen", "procesador": "processor", "programa": "program",
+    "qubit": "qubit", "red": "network", "robot": "robot", "router": "router", "servidor": "server",
+    "software": "software", "tableta": "tablet", "teclado": "keyboard", "terminal": "terminal", "usuario": "user",
+    "video": "video", "virus": "virus", "webcam": "webcam", "wifi": "wifi", "xerografía": "xerography",
+    "yotabyte": "yottabyte", "zip": "zip", "algoritmo": "algorithm", "bit": "bit", "código": "code"
   }
 }

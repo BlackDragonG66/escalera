@@ -204,12 +204,16 @@
         <div id="game-mode-badges" class="mode-badges"></div>
         <div class="game-timer"><span id="game-timer-num">--</span>s</div>
       </div>
-      <div class="chain-box">
+      <div class="chain-box" id="chain-box-shared">
         <div class="chain-label">Palabra actual</div>
         <div class="chain-word" id="game-current-word">—</div>
         <div class="chain-translation hidden" id="game-current-translation"></div>
         <div class="chain-hint">Siguiente palabra debe comenzar con "<span id="game-next-letter">?</span>"</div>
       </div>
+
+      <!-- PvP 1v1 simultáneo: cada jugador ve su propia cadena y avanza a su ritmo -->
+      <div class="pvp-lanes hidden" id="pvp-lanes"></div>
+
       <div class="chain-history-box">
         <button class="chain-toggle" id="chain-toggle-btn">📜 Ver cadena completa (<span id="chain-count">0</span>) ▾</button>
         <div id="chain-history-list" class="chain-history-list hidden"></div>

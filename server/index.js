@@ -84,6 +84,37 @@ function scheduleTurnTimer(room) {
   }, ms);
 }
 
+// PvP simultáneo: cada jugador tiene su propio temporizador independiente, así ambos
+// pueden estar respondiendo al mismo tiempo sin esperar el turno del otro.
+function clearPvpTimers(room) {
+  if (!room.pvpTimers) return;
+  for (const t of room.pvpTimers.values()) clearTimeout(t);
+  room.pvpTimers.clear();
+}
+
+function schedulePvpTimer(room, playerId) {
+  if (!room.pvpTimers) room.pvpTimers = new Map();
+  const existing = room.pvpTimers.get(playerId);
+  if (existing) clearTimeout(existing);
+  if (!room.settings.turnTimeLimitSec) return;
+  const ms = room.settings.turnTimeLimitSec * 1000;
+  const timer = setTimeout(() => {
+    const chain = room.getPlayerChain(playerId);
+    if (!chain || room.state !== 'playing') return;
+    const hints = room.settings.learnMode ? room.getHintsOnFail(chain.currentWord, chain.usedWords) : null;
+    room.failWordFor(playerId);
+    io.to(room.code).emit('game:timeout', { playerId, hints });
+    if (room.state === 'finished') {
+      io.to(room.code).emit('game:finished', room.toPublicState());
+      clearPvpTimers(room);
+    } else {
+      schedulePvpTimer(room, playerId);
+    }
+    roomUpdate(room);
+  }, ms);
+  room.pvpTimers.set(playerId, timer);
+}
+
 io.on('connection', (socket) => {
   let currentRoomCode = null;
   let currentPlayerId = null;
@@ -162,7 +193,12 @@ io.on('connection', (socket) => {
     room.start();
     cb && cb({ ok: true });
     io.to(room.code).emit('game:started', room.toPublicState());
-    scheduleTurnTimer(room);
+    if (room.isPvpSimultaneous()) {
+      clearPvpTimers(room);
+      for (const id of room.turnOrder) schedulePvpTimer(room, id);
+    } else {
+      scheduleTurnTimer(room);
+    }
     roomUpdate(room);
   });
 
@@ -170,6 +206,12 @@ io.on('connection', (socket) => {
   socket.on('game:getOptions', (cb) => {
     const room = manager.getRoom(currentRoomCode);
     if (!room || room.state !== 'playing') return cb && cb({ ok: false });
+    if (room.isPvpSimultaneous()) {
+      const chain = room.getPlayerChain(currentPlayerId);
+      if (!chain) return cb && cb({ ok: false });
+      const options = room.generateOptions(4, chain.currentWord, chain.usedWords);
+      return cb && cb({ ok: true, options });
+    }
     const options = room.generateOptions(4);
     cb && cb({ ok: true, options });
   });
@@ -178,6 +220,36 @@ io.on('connection', (socket) => {
     const room = manager.getRoom(currentRoomCode);
     if (!room || room.state !== 'playing') return cb && cb({ ok: false, error: 'not_playing' });
     const playerId = currentPlayerId;
+
+    // --- PvP 1v1 simultáneo: cada jugador avanza su propia cadena en paralelo ---
+    if (room.isPvpSimultaneous()) {
+      const validation = room.validateWordFor(playerId, word);
+      if (!validation.ok) {
+        room.failWordFor(playerId);
+        const chain = room.getPlayerChain(playerId);
+        const hints = room.settings.learnMode ? room.getHintsOnFail(chain?.currentWord, chain?.usedWords) : null;
+        cb && cb({ ok: false, reason: validation.reason, expectedLetter: validation.expectedLetter, hints });
+        io.to(room.code).emit('game:wordRejected', { playerId, word, reason: validation.reason });
+        if (room.state === 'finished') {
+          io.to(room.code).emit('game:finished', room.toPublicState());
+          clearPvpTimers(room);
+        }
+        roomUpdate(room);
+        return;
+      }
+      const points = room.acceptWordFor(playerId, word);
+      cb && cb({ ok: true, points });
+      io.to(room.code).emit('game:wordAccepted', { playerId, word, points });
+      if (room.state === 'finished') {
+        io.to(room.code).emit('game:finished', room.toPublicState());
+        clearPvpTimers(room);
+      } else {
+        schedulePvpTimer(room, playerId);
+      }
+      roomUpdate(room);
+      return;
+    }
+
     if (room.currentPlayerId() !== playerId) {
       return cb && cb({ ok: false, error: 'not_your_turn' });
     }
@@ -248,7 +320,12 @@ io.on('connection', (socket) => {
     room.start();
     cb && cb({ ok: true });
     io.to(room.code).emit('game:started', room.toPublicState());
-    scheduleTurnTimer(room);
+    if (room.isPvpSimultaneous()) {
+      clearPvpTimers(room);
+      for (const id of room.turnOrder) schedulePvpTimer(room, id);
+    } else {
+      scheduleTurnTimer(room);
+    }
     roomUpdate(room);
   });
 
